@@ -47,8 +47,7 @@ ZedCameraOne::ZedCameraOne(const rclcpp::NodeOptions & options)
   _imuRawSubCount(0),
   _streamingServerRequired(false),
   _streamingServerRunning(false),
-  _triggerUpdateDynParams(true),
-  _uptimer(get_clock())
+  _triggerUpdateDynParams(true)
 {
   RCLCPP_INFO(get_logger(), "********************************");
   RCLCPP_INFO(get_logger(), "    ZED Camera One Component    ");
@@ -743,9 +742,6 @@ bool ZedCameraOne::startCamera()
   }
   // ----> Try to connect to a camera, to a stream, or to load an SVO
 
-  // Initialize Up timer
-  _uptimer.tic();
-
   // ----> Camera information
   sl::CameraOneInformation camInfo = _zed->getCameraInformation();
 
@@ -990,8 +986,6 @@ void ZedCameraOne::callback_updateDiagnostic(
     return;
   }
 
-  stat.addf("Uptime", "%s", sl_tools::seconds2str(_uptimer.toc()).c_str());
-
   if (_grabStatus == sl::ERROR_CODE::SUCCESS) {
     double freq = 1. / _grabPeriodMean_sec->getAvg();
     double freq_perc = 100. * freq / _camGrabFrameRate;
@@ -1018,15 +1012,6 @@ void ZedCameraOne::callback_updateDiagnostic(
         diagnostic_msgs::msg::DiagnosticStatus::OK,
         "Camera grabbing");
     }
-
-    // ----> Frame drop count
-    auto dropped = _zed->getFrameDroppedCount();
-    uint64_t total = dropped + _frameCount;
-    auto perc_drop = 100. * static_cast<double>(dropped) / total;
-    stat.addf(
-      "Frame Drop rate", "%u/%lu (%g%%)",
-      dropped, total, perc_drop);
-    // <---- Frame drop count
 
 #if ENABLE_SVO
     if (_svoMode) {

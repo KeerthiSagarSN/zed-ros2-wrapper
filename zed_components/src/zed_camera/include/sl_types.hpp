@@ -44,7 +44,6 @@
 #include <sensor_msgs/msg/nav_sat_status.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/msg/temperature.hpp>
-#include <std_msgs/msg/bool.hpp>
 #include <std_srvs/srv/set_bool.hpp>
 #include <std_srvs/srv/trigger.hpp>
 #include <stereo_msgs/msg/disparity_image.hpp>
@@ -136,8 +135,6 @@ typedef std::shared_ptr<rclcpp::Publisher<geographic_msgs::msg::GeoPoseStamped>>
 typedef std::shared_ptr<rclcpp::Publisher<sensor_msgs::msg::NavSatFix>>
   gnssFixPub;
 
-typedef std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Bool>> healthPub;
-
 typedef std::shared_ptr<rclcpp::Subscription<geometry_msgs::msg::PointStamped>> clickedPtSub;
 typedef std::shared_ptr<rclcpp::Subscription<sensor_msgs::msg::NavSatFix>> gnssFixSub;
 typedef std::shared_ptr<rclcpp::Subscription<rosgraph_msgs::msg::Clock>> clockSub;
@@ -193,43 +190,12 @@ typedef rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr enableStreamingPtr;
 typedef enum
 {
   NATIVE,  //!< Same camera grab resolution
-  CUSTOM   //!< Custom Rescale Factor
+  CUSTOM,   //!< Custom Rescale Factor
+  OPTIMIZED //!< Optimized for performance
 } PubRes;
 
-std::string toString(const PubRes & res)
-{
-  switch (res) {
-    case NATIVE:
-      return "NATIVE";
-    case CUSTOM:
-      return "CUSTOM";
-    default:
-      return "";
-  }
-}
-
-typedef enum
-{
-  FULL,    //!< Full resolution. Not recommended because slow processing and high bandwidth requirements
-  COMPACT,  //!< Standard resolution. Optimizes processing and bandwidth
-  REDUCED   //!< Half resolution. Low processing and bandwidth requirements
-} PcRes;
-std::string toString(const PcRes & res)
-{
-  switch (res) {
-    case FULL:
-      return "FULL";
-    case COMPACT:
-      return "COMPACT";
-    case REDUCED:
-      return "REDUCED";
-    default:
-      return "";
-  }
-}
-
-const int NEURAL_W = 896;
-const int NEURAL_H = 512;
+const int NEURAL_W = (896 / 2);
+const int NEURAL_H = (512 / 2);
 // <---- Typedefs to simplify declarations
 
 }  // namespace stereolabs

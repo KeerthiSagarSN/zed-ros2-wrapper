@@ -186,9 +186,6 @@ protected:
   void publishOdomTF(rclcpp::Time t);
   void publishPoseTF(rclcpp::Time t);
   bool publishSensorsData(rclcpp::Time force_ts = TIMEZERO_ROS);
-#if (ZED_SDK_MAJOR_VERSION >= 5)
-  void publishHealthStatus();
-#endif
   // <---- Publishing functions
 
   // ----> Utility functions
@@ -304,33 +301,31 @@ private:
   std::string mCameraName = "zed";           // Default camera name
   int mCamGrabFrameRate = 15;
   bool mAsyncImageRetrieval = false;
-  int mImageValidityCheck = 1;
   std::string mSvoFilepath = "";
   bool mSvoLoop = false;
   bool mSvoRealtime = false;
   int mVerbose = 1;
   int mGpuId = -1;
   std::string mOpencvCalibFile;
-  sl::RESOLUTION mCamResol = sl::RESOLUTION::HD1080;    // Default resolution: RESOLUTION_HD1080
-  PubRes mPubResolution = PubRes::NATIVE;                     // Use native grab resolution by default
+  sl::RESOLUTION mCamResol =
+    sl::RESOLUTION::HD1080;    // Default resolution: RESOLUTION_HD1080
+  PubRes mPubResolution =
+    PubRes::NATIVE;                     // Use native grab resolution by default
   double mCustomDownscaleFactor = 1.0;  // Used to rescale data with user factor
-  bool mOpenniDepthMode =
-    false;    // 16 bit UC data in mm else 32F in m,
-              // for more info -> http://www.ros.org/reps/rep-0118.html
-  double mCamMinDepth = 0.1;
-  double mCamMaxDepth = 10.0;
-  sl::DEPTH_MODE mDepthMode = sl::DEPTH_MODE::NEURAL;
-  PcRes mPcResolution = PcRes::COMPACT;
-  double mPcDownscaleFactor = 1.0;      // Used to rescale point cloud data
-  bool mDepthDisabled = false;  // Indicates if depth calculation is not required (DEPTH_MODE::NONE)
+  sl::DEPTH_MODE mDepthMode =
+    sl::DEPTH_MODE::ULTRA;      // Default depth mode: ULTRA
+  bool mDepthDisabled = false;  // Indicates if depth calculation is not
+                                // required (DEPTH_MODE::NONE)
   int mDepthStabilization = 1;
-
   int mCamTimeoutSec = 5;
   int mMaxReconnectTemp = 5;
   bool mCameraSelfCalib = true;
   bool mCameraFlip = false;
-
-
+  bool mOpenniDepthMode =
+    false;    // 16 bit UC data in mm else 32F in m,
+              // for more info -> http://www.ros.org/reps/rep-0118.html
+  double mCamMinDepth = 0.2;
+  double mCamMaxDepth = 10.0;
   bool mSensCameraSync = false;
   double mSensPubRate = 400.;
 
@@ -519,7 +514,6 @@ private:
   int mCamWidth;   // Camera frame width
   int mCamHeight;  // Camera frame height
   sl::Resolution mMatResol;
-  sl::Resolution mPcResol;
   // <---- Stereolabs Mat Info
 
   // Camera IMU transform
@@ -630,11 +624,6 @@ private:
   gnssFusionStatusPub mPubGeoPoseStatus;
   gnssFixPub mPubFusedFix;
   gnssFixPub mPubOriginFix;
-
-  healthPub mPubHealthImage;
-  healthPub mPubHealthLight;
-  healthPub mPubHealthDepth;
-  healthPub mPubHealthSensor;
   // <---- Publishers
 
   // <---- Publisher variables
@@ -767,7 +756,6 @@ private:
   // <---- Positional Tracking
 
   // ----> Diagnostic
-  sl_tools::StopWatch mUptimer;
   float mTempImu = NOT_VALID_TEMP;
   float mTempLeft = NOT_VALID_TEMP;
   float mTempRight = NOT_VALID_TEMP;
